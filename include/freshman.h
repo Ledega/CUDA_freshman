@@ -18,6 +18,7 @@
   }\
 }
 
+namespace utills {
 double cpuSecond()
 {
   struct timeval tp;
@@ -79,7 +80,7 @@ void initDevice(int devNum)
 
 }
 
-void checkResult(float * hostRef,float * gpuRef,const int N)
+void checkResult(float * hostRef, float * gpuRef, const int N)
 {
   double epsilon=1.0E-8;
   for(int i=0;i<N;i++)
@@ -94,5 +95,6 @@ void checkResult(float * hostRef,float * gpuRef,const int N)
   printf("Check result success!\n");
 }
 
+}
 
 #endif//FRESHMAN_H
