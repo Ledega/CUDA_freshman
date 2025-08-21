@@ -55,17 +55,16 @@ void initialData_int(int* ip, int size)
 	}
 }
 
-void printMatrix(float * C,const int nx,const int ny)
+void printMatrix(float * C, const int nx, const int ny)
 {
-  float *ic=C;
-  printf("Matrix<%d,%d>:\n",ny,nx);
-  for(int i=0;i<ny;i++)
+  printf("Matrix<%d,%d>:\n", ny, nx);
+  for(int i = 0; i < ny; i++)
   {
-    for(int j=0;j<nx;j++)
+    for(int j = 0; j < nx; j++)
     {
-      printf("%6f ",ic[j]);
+      // 直接通过索引访问，避免指针运算
+      printf("%6f ", C[i * nx + j]);
     }
-    ic+=nx;
     printf("\n");
   }
 }
@@ -75,7 +74,7 @@ void initDevice(int devNum)
   int dev = devNum;
   cudaDeviceProp deviceProp;
   CHECK(cudaGetDeviceProperties(&deviceProp,dev));
-  printf("Using device %d: %s\n",dev,deviceProp.name);
+  printf("Using device %d: [%s]\n", dev, deviceProp.name);
   CHECK(cudaSetDevice(dev));
 
 }
