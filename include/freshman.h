@@ -97,4 +97,80 @@ void checkResult(float * hostRef, float * gpuRef, const int N)
 
 }
 
+class CudaTimer {
+public:
+    CudaTimer() : running(false), last_time_ms(0.0f) {
+        cudaError_t err;
+        err = cudaEventCreate(&start_event);
+        checkError(err, "cudaEventCreate(start)");
+        err = cudaEventCreate(&stop_event);
+        checkError(err, "cudaEventCreate(stop)");
+    }
+
+    ~CudaTimer() {
+        cudaEventDestroy(start_event);
+        cudaEventDestroy(stop_event);
+    }
+
+    void start() {
+        if (running) return;
+        cudaError_t err = cudaEventRecord(start_event);
+        checkError(err, "cudaEventRecord(start)");
+        running = true;
+    }
+
+void stop() {
+    if (!running) return;
+    
+    // 记录停止事件
+    cudaError_t err = cudaEventRecord(stop_event);
+    checkError(err, "cudaEventRecord(stop)");
+    
+    // 同步停止事件，确保事件之前的所有操作都已完成
+    err = cudaEventSynchronize(stop_event);
+    checkError(err, "cudaEventSynchronize");
+    
+    running = false;
+    err = cudaEventElapsedTime(&last_time_ms, start_event, stop_event);
+    checkError(err, "cudaEventElapsedTime");
+}
+
+    // 返回上一次 stop() 到 start() 的时间（毫秒）
+    float elapsed() const {
+        return last_time_ms;
+    }
+
+    // 同步并返回时间（即使没调用 stop）
+    float syncAndGet() {
+        if (running) {
+            stop();
+        }
+        return last_time_ms;
+    }
+
+    // 快捷静态方法：测量单个 kernel
+    template<typename KernelFunc, typename... Args>
+    static float measure(KernelFunc kernel, int blocks, int threads, Args... args) {
+        CudaTimer timer;
+        timer.start();
+        kernel<<<blocks, threads>>>(args...);
+        timer.stop();
+        return timer.elapsed();
+    }
+
+  private:
+    cudaEvent_t start_event;
+    cudaEvent_t stop_event;
+    bool running;
+    float last_time_ms;
+
+    void checkError(cudaError_t err, const char* msg) {
+        if (err != cudaSuccess) {
+            printf("CUDA Error in CudaTimer: %s: %s\n", msg, cudaGetErrorString(err));
+        }
+    }
+
+};
+
+
 #endif//FRESHMAN_H

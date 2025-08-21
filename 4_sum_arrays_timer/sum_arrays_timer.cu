@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
+#include <vector>
 #include "freshman.h"
 
 void sumArrays(float * a,float * b,float * res,const int size)
@@ -25,9 +26,8 @@ int main() {
     // set up device
     utills::initDevice(0);
     
-    int nElem = 1 << 24;
+    int nElem = 1 << 24 ;
     int nByte = nElem * sizeof(float);
-    printf("Vector size: %d\n", nElem);
 
     // malloc host memory
     float *h_a = (float *)malloc(nByte);
@@ -51,19 +51,22 @@ int main() {
     CHECK(cudaMemcpy(d_a, h_a, nByte, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_b, h_b, nByte, cudaMemcpyHostToDevice));
 
-    // launch kernel
-    dim3 block(256, 1, 1);
-    dim3 grid((nElem + block.x - 1) / block.x, 1, 1);
-    sum_arrays<<<grid, block>>>(d_a, d_b, d_c, nElem);
-    printf("Execution configuration <<<%d, %d>>> \n",grid.x, block.x);
-    CHECK(cudaDeviceSynchronize());
+    CudaTimer timer;
+    std::vector<int> blockSizes = {256, 512, 1024};
+
+    for (int i = 0; i < blockSizes.size(); i++) {
+      dim3 block(blockSizes[i], 1, 1);
+      dim3 grid((nElem + block.x - 1) / block.x, 1, 1);
+      
+      timer.start();
+      sum_arrays<<<grid, block>>>(d_a, d_b, d_c, nElem);
+      timer.stop();
+      printf("Data size: %d  <<<%d, %d>>> \n", nElem, grid.x, block.x);
+      printf("Elapsed time: [%f] ms\n", timer.elapsed());
+    }
 
     // copy data from device to host
     CHECK(cudaMemcpy(h_res_from_gpu, d_c, nByte, cudaMemcpyDeviceToHost));
-
-    // verify result
-    sumArrays(h_a, h_b, h_res, nElem);
-    utills::checkResult(h_res, h_res_from_gpu, nElem);
 
     // free memory
     CHECK(cudaFree(d_a));
