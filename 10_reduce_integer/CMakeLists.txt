@@ -1,0 +1,1 @@
+add_executable(reduce_integer reduce_integer.cu)
