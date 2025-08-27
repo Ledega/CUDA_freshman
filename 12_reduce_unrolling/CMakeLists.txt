@@ -1,0 +1,1 @@
+add_executable(reduce_unrolling reduce_unrolling.cu)
