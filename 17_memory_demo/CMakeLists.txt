@@ -1,0 +1,1 @@
+add_executable(memory_demo memory_demo.cu)
