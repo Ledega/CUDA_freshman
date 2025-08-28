@@ -307,6 +307,23 @@ int main()
     CHECK(cudaMemcpy(h_b, d_out, resBytes, cudaMemcpyDeviceToHost));
     printf("Time cost [%f] ms \n", timer.elapsed());
 
+    // reduceCompleteUnroll
+    // switch(blocksize)
+	// {
+	// 	case 1024:
+	// 		reduceCompleteUnroll <1024><< <grid.x/8, block >> >(idata_dev, odata_dev, size);
+	// 	break;
+	// 	case 512:
+	// 		reduceCompleteUnroll <512><< <grid.x/8, block >> >(idata_dev, odata_dev, size);
+	// 	break;
+	// 	case 256:
+	// 		reduceCompleteUnroll <256><< <grid.x/8, block >> >(idata_dev, odata_dev, size);
+	// 	break;
+	// 	case 128:
+	// 		reduceCompleteUnroll <128><< <grid.x/8, block >> >(idata_dev, odata_dev, size);
+	// 	break;
+	// }
+
     CHECK(cudaFree(d_in));
     CHECK(cudaFree(d_out));
     free(h_a);
