@@ -171,5 +171,30 @@ void stop() {
 
 };
 
+template<typename T>
+class CudaArray
+{
+public:
+  explicit CudaArray(size_t n) : size_(n) {
+    CHECK(cudaMalloc(&ptr_, n * sizeof(T)));
+  }
+
+  ~CudaArray() {
+    CHECK(cudaFree(ptr_))
+  }
+
+  CudaArray(const CudaArray&) = delete;
+  CudaArray& operator=(const CudaArray&) = delete;
+
+  T* get()          {return ptr_;}
+  const T* get()    {return ptr_;}
+
+  private:
+    T* ptr_;
+    size_t size_;
+};
+
+
+
 
 #endif//FRESHMAN_H
