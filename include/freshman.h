@@ -175,19 +175,29 @@ template<typename T>
 class CudaArray
 {
 public:
-  explicit CudaArray(size_t n) : size_(n) {
-    CHECK(cudaMalloc(&ptr_, n * sizeof(T)));
+  explicit CudaArray(size_t n) : size_(n), ptr_(nullptr) {
+    if (n > 0) {
+      CHECK(cudaMalloc((void**)&ptr_, n * sizeof(T)));
+    }
   }
 
+  // 添加移动构造函数...
+ 
+  // 添加移动赋值操作符...
+
   ~CudaArray() {
-    CHECK(cudaFree(ptr_))
+    if (ptr_) {
+        //printf("Freeing device memory: %p.\n", ptr_);
+        CHECK(cudaFree(ptr_));
+        ptr_ = nullptr;
+    }
   }
 
   CudaArray(const CudaArray&) = delete;
   CudaArray& operator=(const CudaArray&) = delete;
 
-  T* get()          {return ptr_;}
-  const T* get()    {return ptr_;}
+  T* get()               {return ptr_;}
+  const T* get() const   {return ptr_;}
 
   private:
     T* ptr_;
