@@ -1,0 +1,1 @@
+add_executable(reduce_integer_shared_mem reduce_integer_shared_mem.cu)

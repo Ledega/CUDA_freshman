@@ -193,7 +193,7 @@ __global__ void reduceCompleteUnrollWarp8(int *idata, int *odata, int n) {
 
     // 完全展开，但有问题 如果 blockDim.x = 2048 就规约不完全了
 	if(blockDim.x>=1024 && tid <512)
-		idata_st[tid]+=idata[tid+512];
+		idata_st[tid]+=idata_st[tid+512];
 	__syncthreads();
 	if(blockDim.x>=512 && tid <256)
 		idata_st[tid]+=idata_st[tid+256];
